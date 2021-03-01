@@ -1,0 +1,49 @@
+	* install homebrew
+		+ go to brew.sh
+		+ run the command provided there
+
+	+ install docker with brew:
+		$ brew install docker-compose
+			- it install everything 
+
+	+ install ansible
+		+ install latest version of phyton2.7 - supported by ansible
+			- brew install python
+			- install the latest updates of pip
+				$ pip install pip --upgrade
+		+ install ansible with pip
+			$ pip install ansible --upgrade
+	+ install other package to support ansible modules to interact with amazon web services
+		- pip install boto boto3
+		- install aws command line tools - interact with aws throuth the command line
+			$ pip install awscli 
+	+ install git
+		$ brew install git
+	+ instal terminal iTerm2, downloaded from iTerm2.com
+	+ see graphical view of file system from command line
+		$ brew install tree
+
+	+ install a docker machine specifying the driver for virtualization platform, in this case vmwarefusion
+		$ docker-machine create --driver vmwarefusion --vmwarefusion-cpu-count "4" --vmwarefusion-disk-size "60000" --vmwarefusion-memory-size "8192" docker01
+
+		- docker01 -> name of docker machine
+		- CPU count -> 4
+		- disc size -> 60000 (60GB)
+		- memory size -> 8192 (8GB)
+
+		* to connect to docker machine
+			$ docker-machine env docker01
+		* set environment variables, in order to the docker client to connect to docker machine
+			$ eval $(docker-machine env docker01)	
+		* test connection, using docker command to pull ubuntu image
+			$ docker pull ubuntu
+		* list ip of current docker machine
+			$ docker-machine ip docker01
+		* connects to docker machine through ssh
+			$ docker-machine ssh docker01
+		* docker.machine share your home folder to the your docker virtual machine, so it is easy to map volumes on local environemnt to docker containers
+
+	+ start/stop docker virtual machine
+		$ docker-machine restart docker01
+	* list state of actual docker machine
+		$ docker-machine  ls

@@ -1,0 +1,8 @@
+To build the image:
+	$ docker build -t jmenga/todobackend-base .
+
+	* run the image and pass "ps" command to the container
+		* container will execute: entrypoint.sh ps
+			- ps is the application process
+			- list all the current processes in the container
+		$ docker run --rm jmenga/todobackend-base ps

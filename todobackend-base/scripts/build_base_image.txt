@@ -1,0 +1,74 @@
++ To build the image:
+	$ docker build -t jmenga/todobackend-base .
+
+	* run the image and pass "ps" command to the container
+		* container will execute: entrypoint.sh ps
+			- ps is the application process
+			- list all the current processes in the container
+		$ docker run --rm jmenga/todobackend-base ps
+
+	* run development container:
+		$ docker build -t todobackend-dev -f docker/dev/Dockerfile .
+		* to measure how long doest it takes+ to run, usinf run command
+			$ time docker build -t todobackend-dev -f docker/dev/Dockerfile .
+				- this command is run from the root directory, because it needs those file in the root, but point to the target Dockerfile with "-f" option
+
+
++ Volume Containers
+	- create a volume container that can share its volume with with other containers
+	- we can mount the volume in the volume container to a physical path in the docker host
+	- with this, containers that attach to the volume container will have access to its volume
+		* and any data persisted to these volumes, will remain after attached containers are attached and destroyed
+		$ docker run -v /tmp/cache:/cache --entrypoint true --name cache todobackend-dev
+			* -v /tmp/cache:/cache -> map pf physical path /tmp/cache on our docker host, with means the cache will persist on local disk of docker
+				host, even if we destry the volume container
+			* --entrypoint true  -> to make the volume container to exit immediately wihtout doing anything and we'll give the name "cache" to the 	volume container  
+			* odobackend-dev -> we create the colume container from the dev odobackend-dev image - this ensures that all users, groups and folder persmissions are consistent when we run our  tests from the development image and reference the cache folder in the volume container
+
+		* now, we run the dev container and pointing it to the created volume from the cache container, using the volumes-from flag
+			$ time docker run --rm --volumes-from cache todobackend-dev
+
+		* to add an environmet variable, use the "-e" option 
+			$ docker run --rm -e DJANGO_SETTINGS_MODULE=todobackend.settings.test --volumes-from cache todobackend-dev
+
+
+ + doccker compose
+ 	* docker compose file format is yaml
+ 	* a service is a container specification
+ 	* to run the create configuration with docker-compose command:
+ 		$ docker-compose up test
+ 			+ if you do not specify a name for containers in the compose yaml file, it will defines a defualt name made by the working dior + "_" + the service name
+ 	* to kill all all containers
+ 		$ docker-compose kill
+ 	* remove all containers
+ 		$ docker-compose rm -f
+
+ + Multi-container race condition
+ 	- in this case, db container takes 10 seconds to initialize and as the test service attempts to connect before this has happened, test fails
+ 	- it started all the services at the same time
+ 	- we can solve this with an agent service to leverage the useful wait for module, with ansible playbook
+ 		+ create an agent service that will run in our docker compose and "probe" the db service if it is running on tcp port 3306
+ 		+ create a generic ansible docker image thar will simply run an ansible playbook from a volume called ansible
+ 		+ we can build this image and tag it as your organization name/ansible
+ 			$ docker build -t nmonteiro/ansible .
+
+ + dangling image
+ 	* it is an image that no longer has a name or a tag, becuse it has been superseeded by another image name an tag
+ 	* docker rmi command, removed dangling images
+ 		$ docker rmi 2395584859049
+ 	* to see dangling images:
+ 		$ docker images -f dangling=true
+ 	* remove dangling images with specific labels:
+ 		$ docker images -q -f dangling=true -f label=application=$(REPO_NAME) | xargs -I ARGS docker rmi -f ARGS	
+ 			* xargs command is a builtin in unix and linux that executes command lines from standard input
+ 			* -I  ARGS flag, captures the input in an ARGS variable
+ 			* in sum, docker rmi -f command will be executed with all dangling images as input
+
+ + dangling volume
+ 	* volumes from containers thar were removed
+ 	* to see all dangling vlolumes
+ 		$ docker volume -ls -f dangling=true
+ 	* removing some dangling volumes:
+ 		$ docker volume rm -v $(docker volume ls -f dangling=true -q)
+
+ 	

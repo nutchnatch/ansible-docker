@@ -1,0 +1,53 @@
+test:
+  build: ../../ # used instead of the image configuration
+                # defines the build context, which is the top level folder where source code is
+  dockerfile: docker/dev/Dockerfile # relative to the build context
+  volume_from: 
+    - cache     # to attach a volume container
+                # it will look for either a container named cache or alternativelly create a volume container for you, if there is another service called cache 
+  links:  # links to db service. This allows test service to be able to resolve host name db, by automatically adding a host entry to /etc/hosts
+          # in the test service container
+      - db
+  environment:  # environment variables want to pass to the container, at runtime 
+    DJANGO_SETTINGS_MODULE: todobackend.settings.test
+    MYSQL_HOST: db  # this is thename of the db service, create above
+    MYSQL_USER: root
+    MYSQL_PASSWORD: password
+    TEST_OUTPUT_DIR: /reports # this dir was specified as a volume in development image
+
+  build:
+    build: ../../
+    dockerfile: docker/dev/Dockerfile 
+    volumes:
+      - ../../target:/wheelhouse    # we make a folder at ther root of application repository, calles target, and map it to /wheelhouse, in builder container
+                                    # this is where the builder will output the application artifacts which will then be available in the target folder, on our docker host
+    volume_from:
+      - cache   # we add the cache volume to the builder service, so the builder service has access to the application source code and dependency snapshot, created in the build cache during the test stage
+
+    entrypoint: "entrypoint.sh"  # this entrypoint is part of the base image, and activates the virtual env, without running pip install
+    command: ["pip", "wheel", "--no-index", "-f /build", "."] # this command tell pip to build python wheels with --o-indexx option, so it does not download any dependencies externally
+                                                          # and instead, build using the /build cache folder mounted from the cache service to find 
+  agent: 
+    image: nmonteiro/ansible    # ansible image creates previously
+    volumes:
+      - ../../ansible/probe.yaml:/ansible/site.yaml   # map the created probe to site.yaml, which is where the default playbook bynary looks at to runa playbook
+    links:  # force db to start before the agent
+      - db
+    environment:  # defines env variables to be added to the probe.yaml file
+      PROBE_HOST: "db"
+      PROBE_PORT: "3306"
+
+
+  db: 
+    image: mysql:5.6
+    hostname: db
+    expose: 
+      - "3306"
+    MYSQL_ROOT_PASSWORD: password   # is the same user and pass confiogurations used on "environment above"
+  cache:
+    build: ../../
+    dockerfile: docker/dev/Dockerfile
+    volume: 
+        - /tmp/cache/:/cache  # volume mapping /tmp/cache/ in the host tp /cache, in the container
+        - /build  # will contain all data to build application, which will be shared between containers
+    entrypoint: "true"  # makes the container to exist without doing amything

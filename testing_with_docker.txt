@@ -1,0 +1,31 @@
+	* docker image hierarchy
+		+ docker image
+			- must have minimum runtime environment
+				+ to improve performance
+				+ reduce attack service
+			- application dependencies
+			- system configuration
+			- default settings
+
+		+ to improve reusability and separation of concern, it should
+			- install application
+			- application configuration
+			- application entrypoint
+
+			* followung those principles are important, so it can be easier to maintain the base image (apply OS and security updates)
+			* developers are only responsibles for the application itself, and does not to worry about the underlying runtime environment provided by the base image
+
+		+ base image can be created for different types of technologies, for example
+			- imge for java
+			- image for python
+
+
+		+ base images can be separated and maintained (updated in terms of security and patched) in an isolated manner
+			- this image production can have its own workflow, with its own pipeline and releases versions that can be used to include in the application production
+			- these images will have the same level of testing and quality assurance
+		+ developers only have to add source code on top of those base images
+
+
+	-> to create a git repository:
+		$ git init
+		
