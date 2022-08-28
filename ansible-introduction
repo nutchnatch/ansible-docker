@@ -1,0 +1,26 @@
+# install ansible
+$ pip --version
+$ pip install -U pip
+$ pip install ansible
+$ ansible version
+
+
+# see outdated applications
+$ pip list  --oudated
+# see pre releases
+$ pip list  --oudated --pre
+
+# upgrade ansible
+$ pip install -U ansible
+
+# ansible loist of connection plugins:
+$ ansible-doc -t connection -l
+# specifying the plugin type
+$ ansible-doc --type connection -list
+
+# see ansoble packages
+$ ansible TAB
+
+# see ansible options
+$ ansible -h
+
