@@ -1,0 +1,27 @@
+---
+# ansible -m copy  -a "src=../adhoc/master.gitconfig dest=~/.gitconfig" localhost
+# ansible -m homebrew -a "name=bat" state="latest" localhost
+# ansible -m homebrew -a "name=jq" state="latest" localhost
+
+#plays
+- name: Ensure ~/.gitconfig copied from master.gitconfig
+  # gather_facts: false
+  hosts: localhost
+  tasks: 
+  - copy: src="../adhoc/master.gitconfig" dest="~/.gitconfig"
+
+
+#tasks:
+#- actions:
+#    arguments
+- name: Ensure homebrew package are installed 
+  hosts: localhost
+  task:
+  - homebrew: name=bat state=latest
+  - homebrew: 
+      name: jq
+      state: latest
+
+## to execute this playbook, run:
+# $ ansible-playbook playbook.yaml
+# ansible -m setup localhost -- in order to see the facts (this can be turned off on the playbook - gather_facts: false)
