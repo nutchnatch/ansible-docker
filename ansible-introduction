@@ -4,6 +4,35 @@ $ pip install -U pip
 $ pip install ansible
 $ ansible version
 
+# install ansible
+$ pip --version
+$ pip install -U pip
+$ pip install ansible
+$ ansible version
+
+
+# see outdated applications
+$ pip list  --oudated
+# see pre releases
+$ pip list  --oudated --pre
+
+# upgrade ansible
+$ pip install -U ansible
+
+# ansible loist of connection plugins:
+$ ansible-doc -t connection -l
+# specifying the plugin type
+$ ansible-doc --type connection -list
+
+# see ansoble packages
+$ ansible TAB
+
+# see ansible options
+$ ansible -h
+$ ansible-playbook -h
+
+
+
 
 # see outdated applications
 $ pip list  --oudated
@@ -24,3 +53,72 @@ $ ansible TAB
 # see ansible options
 $ ansible -h
 
+# to checck configuration
+$ ansible-config list
+
+# to see inventory
+$ ansible-inventory -- list
+
+# to see the group of machines
+$ ansible-inventory --graph
+
+# how to install software using ansible?
+- name: Ensure Git is installed
+  hosts. centos
+  tags: [ 'install-git' ]
+  tasks:
+  - package: name=git state=latest
+    when: ansible_os_family == 'ReeHat'
+    become: yes
+
+# Discover the available package managers for a given host:
+ansible -m setup -a "filter=ansible_pkg_mgr" all
+
+# how to see all inventory with ansible?
+$ ansible-inventory --list
+$ ansible-inventory --graph
+
+# hot to lesrn ansible
+- Use the following command to explore
+$ ansible-doc -h
+# example - see shell plugins
+$ ansible-doc -t --shell --list
+$ ansible-doc -t --shell csl (check doc for this plugin)
+# check ansible-doc git_config
+$ ansible-doc git-config 
+$ ansible -m git_config -a "list_all=yes scope=global" vagrant
+
+# running ansible in docker:
+$ docker run --rm -it python bash
+-> inside the container.
+	$ pip install ansible
+# splecifu the host
+$ ansible-console localhost
+
+# show git config
+$ git config --global --list
+
+# Use ansible to copy a and place git configuration file
+$ ansible  -m copy -a "src=master.gitconfig dest=~/.gitconfig" localhost ==> m -> module name; -a -> args; managed host (target) -> localhost
+--> if we repeat this command, it will not copy the file again, because it already exists in the destination and the content is equal, so it is idenpotent.
+# adding a "check" dry-run mode, just to check what will be the behavior of the command
+$ ansible  -m copy -a "src=master.gitconfig dest=~/.gitconfig" --check localhost
+# adding a "diff" option to check what we are really changing, with the cp command
+$ ansible  -m copy -a "src=master.gitconfig dest=~/.gitconfig" --check --diff localhost
+
+# explore connection plugins:
+$ ansible-doc -t connection --list
+
+# ansible docker documentation
+$ ansible-doc -t connection --list
+
+# after installing containers with ansible,
+# connect ansible to those containers:
+$ ansible-console containers
+
+# play with roles with galaxy ansible:
+https://galaxy.ansible.com/
+# see ansibble-galaxy commands:
+$ ansible-galaxy -h
+# install a new role from galaxy
+$ ansible-galaxy role install kosssi.gitconfig
